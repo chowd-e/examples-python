@@ -41,7 +41,7 @@ class ResultsDisplay(QWidget):
       self.queried = QLabel(self.disp)
 
    def initWindow(self, dist):
-      # If the window exists, don't recreate, just open
+      # If the window exists, don't recreate, just open. [Initialized as null]
       if not self.disp:
          self.disp = QWidget()
          self.distances = dist
@@ -73,15 +73,17 @@ class ResultsDisplay(QWidget):
       self.disp.show()
       self.disp.activateWindow()
 
+   # BUIld header on GUI
    def init_head(self):
+      # buffer values to preserve proper spacing
       lay_buff = QVBoxLayout()
       buff = QLabel(self.disp)
-      # botBuff = QLabel(self.disp)
 
       self.headLabel = QLabel(self.disp)
       self.headLabel.setFont(self.bolded)
       self.headLabel.setAlignment(Qt.AlignRight)
       self.queried.setAlignment(Qt.AlignLeft)
+
       # Label for Searched image displayed at top with Mode
       lay_buff.addWidget(buff)
       lay_buff.addWidget(self.headLabel)
@@ -93,6 +95,7 @@ class ResultsDisplay(QWidget):
       self.lay.addLayout(self.head)
       self.update_head()
 
+   # Refresh header due to user change on controller
    def update_head(self):
       # Update Queried Image
       filePath = self.viewer.get_activePath()
@@ -148,6 +151,8 @@ class ResultsDisplay(QWidget):
             # remove image from grid display
             im_label.clear()
 
+   # Initialize bottom section of GUI containing Next / Prev buttons 
+   # with page display
    def init_tail(self):
       self.prev.clicked.connect(self.on_prev)
       self.next.clicked.connect(self.on_next)
@@ -164,6 +169,7 @@ class ResultsDisplay(QWidget):
       self.lay.addLayout(self.tail)
       self.update_tail()
 
+   # Update bottom section of display due to UI action
    def update_tail(self):
       tail = '/' + str(self.pageLim) + ')'
 
@@ -178,6 +184,7 @@ class ResultsDisplay(QWidget):
       self.prev.setText('Prev ('+ prev + tail)
       self.next.setText('Next ('+ next + tail)
 
+   # Actions on button press: 
    def on_prev(self):
       if self.pageNum != 0:
          self.pageNum -= 1

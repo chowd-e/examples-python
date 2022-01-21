@@ -6,12 +6,15 @@ from PyQt5.QtGui import QPixmap
 from Model import PixInfo
 from View import ResultsDisplay
 
+# Determines search method for distance computation
 class Mode(enum.Enum):
    COLOR = 0
    INTENSITY = 1
 
+# main window for User Interaction
 class mainUI(QMainWindow):
 
+   # Retrieve and store info from PixInfo passed as param, Build UI
    def __init__(self, pixInfo):
       super().__init__()
 
@@ -41,8 +44,9 @@ class mainUI(QMainWindow):
          app_path = os.path.dirname(os.path.abspath(__file__))
 
       self.imDir = os.path.join(app_path, 'images')
+      os.chdir(self.imDir)
 
-      self.title = 'CSS 584 - HW1 - Chase Howard'
+      self.title = 'CSS 584 - Chase Howard'
       self.left = 100
       self.top = 100
       self._width = 480
@@ -59,12 +63,10 @@ class mainUI(QMainWindow):
 
    # Initialize Userinterface, Display window
    def initUI(self):
+      
       # Set Attributes on Application Window
       self.setFixedSize(self._width, self._height)
       self.setWindowTitle(self.title)
-
-      os.chdir(self.imDir)
-
       self.main.setFixedSize(self._width - 15, self._height - 15)
 
       # Initialize buttons

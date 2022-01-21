@@ -40,6 +40,7 @@ class PixInfo:
          imResize = im.resize((x, y), Image.ANTIALIAS)
          imResize.filename = im.filename
          
+         # extract feature information from image
          pixList = list(im.getdata())
          CcBins, InBins = self.encode(pixList)
          self.colorCode.append(CcBins)
@@ -61,6 +62,7 @@ class PixInfo:
       CcBins = [0]*64
       InBins = [0]*25
 
+      # iterate through each pixel in the image
       for pix in pixlist:
          # Intensity conversion
          val = self.getIntensityBin(pix)
@@ -75,6 +77,8 @@ class PixInfo:
       # pixel.
       return CcBins, InBins
     
+   # convert RGB value to intensity value and return appropriate bin 
+   # for histogram
    def getIntensityBin(self, pix):
       # Intensity conversion
       result = (0.299 * pix[0]) + (0.587 * pix[1]) + (0.114 * pix[2])
@@ -84,6 +88,7 @@ class PixInfo:
          result = 24
       return result
 
+   # Convert RGB value to 6-bit [0,64) value for histogram index storage
    def getColorBin(self, pix):
       # Mask of 0b11000000 for bitwise AND operatiosn
       mask = 192
@@ -98,7 +103,7 @@ class PixInfo:
       result = (msb | mid | lsb )
       return result
 
-   # Accessor functions:
+   # getters:
    def get_imageList(self):
       return self.imageList
    
