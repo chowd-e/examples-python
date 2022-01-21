@@ -1,5 +1,5 @@
 # Variable Message Sign Extraction and Classification
-###*Overview:* 
+###Overview:
 There are an increasing number of partially autonomous vehicles (AV) on the road which require the most up to date information on the environment for appropriate and safe decision making.
 Temporarily relevant information regarding road conditions, detours, traffic conditions, and closures are
 often displayed on Variable Message Signs (VMS) on the side of roads. This information can be critical
@@ -19,7 +19,7 @@ metrics allowing for proper classification of VMS within improperly segmented im
 is decoupled from the segmentation method and can accurately identify VMS with imperfect
 segmentations.
 
-###*Usage*
+###Usage
 Use the notebooks for easiest manipulation, no images are included in the repository; however, there is a 
 notebook for extracting feature information to create your own dataset given a local database of images, 
 trained models are included under './models' 
