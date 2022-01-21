@@ -1,23 +1,22 @@
-import os
+import os, pickle
 import pandas as pd
 import numpy as np
-from sklearn.preprocessing import MinMaxScaler
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.linear_model import LogisticRegression
 from sklearn.naive_bayes import GaussianNB
 from sklearn.tree import DecisionTreeClassifier
-from xgboost import XGBClassifier, XGBRegressor
 from sklearn.ensemble import RandomForestClassifier
-
-from sklearn.linear_model import LogisticRegression
-from scipy.spatial.distance import pdist, squareform
 from sklearn.manifold import TSNE
-
-from sklearn.model_selection import train_test_split, KFold, cross_val_score
-from sklearn import metrics
+from sklearn.model_selection import KFold, cross_val_score, train_test_split
 from sklearn.metrics import RocCurveDisplay
 
+from xgboost import XGBClassifier, XGBRegressor
+from scipy.spatial.distance import pdist, squareform
+
+# read csv data storing classification data for test / train from VMS output
 def load(path):
    # Read / Parse CSV with conversion of dates to datetime
    data = pd.read_csv(path)
@@ -32,8 +31,9 @@ def load(path):
 
    return data, cumNA
 
+# calculate and display the feature distributions across teh data, save at 
+# path_wr
 def dist(data, path_wr):
-
    try:
       os.chdir(path_wr)
       for colname in data.columns:
@@ -48,6 +48,7 @@ def dist(data, path_wr):
    except:
       return False
 
+# calculate correlation matrix between features, return figure
 def correlation(data):
    corr = data.corr()
    
@@ -71,9 +72,11 @@ def correlation(data):
                linewidths = 0.5, 
                cbar_kws = {"shrink": 0.75},
                ax = ax)
-   
    return fig
 
+# compare set of classifiers (Logistic Regression, Decision Tree, Naive Bayes, 
+# Random Forest and XGBoost)
+# Plot ROC curve and print dataframe of metrics
 def evalClassifiers(data):
    xtrain, xtest, ytrain, ytest = splitData(data)
 
@@ -116,6 +119,7 @@ def evalClassifiers(data):
 
    return figure
 
+# split input data into X and Y data, if not targetName given, assume last col
 def getXY(data, targetName = None):
    if targetName == None:
       targetName = data.iloc[:, len(data.columns) - 1].name 
@@ -126,6 +130,7 @@ def getXY(data, targetName = None):
 
    return X, Y
 
+# Split Data into test and train sets for X and Y
 def splitData(data):
    X, Y = getXY(data)
 
@@ -137,6 +142,7 @@ def splitData(data):
 
    return xtrain, xtest, ytrain, ytest
 
+# Evalaute regressio models
 def evalRegressors(data):
    xtrain, xtest, ytrain, ytest = splitData(data)
    
@@ -165,6 +171,7 @@ def evalRegressors(data):
          score = cross_val_score(model, xtest, ytest.values.ravel(), cv = kfold, scoring = metric)
          print("\t" + str(metric) + ": %0.2f, std: %0.2f" % (score.mean(), score.std()))
 
+# Visualize distance in feature space via cluster analysis TNSE
 def clusterVisualization(data, labelVals = [0,1]):
     lenlist=[0]
     _,Y = getXY(data)
@@ -199,3 +206,27 @@ def clusterVisualization(data, labelVals = [0,1]):
 
     plt.legend()
     plt.show()
+
+# save / eport the model to be loaded at separate time
+def exportModel(model, filename = 'model.pkl'):
+   try:
+      # validate file extention
+      if ~filename.endswith('.pkl'):
+         filename += ".pkl"
+
+      with open(filename, 'wb') as f:
+         pickle.dump(model, f)
+   except:
+      return -1
+
+   return 0
+
+# load pickled model and return
+def loadModel(path):
+   try:
+      with open(path, 'rb') as f:
+         model = pickle.load(f)
+   except:
+      return None
+
+   return model

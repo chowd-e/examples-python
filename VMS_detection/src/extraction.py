@@ -1,3 +1,7 @@
+# This class is designed to extract a set of features from a given image, 
+# features include greyscale, color, and shape features based on contours or 
+# subsets of images
+
 import cv2 as cv
 import matplotlib.pyplot as plt
 import numpy as np
@@ -24,6 +28,7 @@ def histGrey(image):
 
       return [mean, peak, area, area_gry]
 
+# Analyize the histogram of HSV color space to extract features of interest
 def histColor(image):
       ######## HISTOGRAM METRICS [HSV]
       hsv = cv.cvtColor(image, cv.COLOR_BGR2HSV)
@@ -41,6 +46,7 @@ def histColor(image):
       
       return [mean, peak, area, area_col]
 
+# Analyze shape features associated with the contour of interest
 def shape(contour):
    # Contour Features
    # for extremely small contours, area calculations return errors
