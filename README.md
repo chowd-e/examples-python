@@ -8,4 +8,5 @@ Specific project related to multimedia, Extraction, Image Processing, Search alg
 *Content Based Image Retrieval System with Relevancy Feedback [CBIR_rf]:* 
 - A content-based image retrieval system which calculates similarity metrics based on color and / or intensity profiles of image database and has variable weight applied based on retrieve . Must be built from src, instructions included in sub-folder 
 
-*Machine Learning Audio Classifier* This is a GUI developed with PyQt5 for interacting with pretrained machine learning models to test functionality of classifiers on detecting whether audio files contain music or speech.
+*Machine Learning Audio Classifier: [audio-classifier]:* 
+This is a GUI developed with PyQt5 for interacting with pretrained machine learning models to test functionality of classifiers on detecting whether audio files contain music or speech.
