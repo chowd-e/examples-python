@@ -1,5 +1,6 @@
 # Variable Message Sign Extraction and Classification
-###Overview:
+
+_Overview:_
 There are an increasing number of partially autonomous vehicles (AV) on the road which require the most up to date information on the environment for appropriate and safe decision making.
 Temporarily relevant information regarding road conditions, detours, traffic conditions, and closures are
 often displayed on Variable Message Signs (VMS) on the side of roads. This information can be critical
