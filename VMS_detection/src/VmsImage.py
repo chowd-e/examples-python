@@ -11,13 +11,10 @@ class SegmentationTypeEnum(enum.Enum):
 
 class VmsImage:
    
-   def __init__(self, *args) -> None:
-      # Single paramter passed - load from file
-      if len(args) == 1:
-         self.loadFromFile(args[0])
-         # What other constructors do I need?
-      else:
-         print('Invalid Constructor: Usage: \nVmsImage(path) ')
+   def __init__(self, image_path) -> None:
+      # Single paramter passed - load from file     
+      self.loadFromFile(image_path)
+
 
    # Load image from existing file
    def loadFromFile(self, path):

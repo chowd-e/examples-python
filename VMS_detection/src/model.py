@@ -43,7 +43,7 @@ class Model:
       self.basePath_ = os.path.abspath(base_path)
       self.loadModel()
       self.image_ = None
-      self.features_ = None
+      self.features_ = pd.DataFrame()
 
    def setViewer(self, viewer):
       self.viewer = viewer
@@ -65,10 +65,11 @@ class Model:
 
    def loadImage(self, path):
       self.image_ = VmsImage(path)
+      self.image_.setSegmentationMethod(SegmentationTypeEnum.COLOR)
       if self.image_.getPath() == None:
          print("Error Loading File - Check path")
          return None
-
+      self.features_ = pd.DataFrame()
       return 0
 
    def loadModel(self, selection = 'DecisionTree'):
@@ -89,13 +90,15 @@ class Model:
       if self.image_ == None:
          return None
 
-      if self.features_ == None:
+      if self.features_.empty:
          self.features_ = feat.getVmsFeatures(self.image_)
 
       preds = self.model_.predict(self.features_)
       return preds
    
    def getContours(self):
+      if(self.image_ == None):
+         return
       return self.image_.getContours()
 
    def setSegmentationType(self, method):
@@ -106,28 +109,16 @@ class Model:
       
    def getFeatures(self):
       try:
+         if self.features_.empty:
+            self.features_ = feat.getVmsFeatures(self.image_)
+         
          out = pd.DataFrame(self.features_)
          # create subplots and populate
          fig = plt.figure()
-         gs = gridspec.GridSpec(4,1)
+         gs = gridspec.GridSpec(1,1)
 
          ax_table = fig.add_subplot(gs[0])
-         eval.plotTable(out, 'Audio Features', ax=ax_table)
-         
-         ax_amp = fig.add_subplot(gs[1])
-         ax_amp.plot(self.get_time(),self.get_amp())
-         ax_amp.set_title('Amplitude over time', fontweight='bold')
-         ax_amp.set_xlabel('Time [ms]')
-         ax_amp.set_ylabel('Amplitude')
-
-         
-         ax_freq = fig.add_subplot(gs[3])
-         hz, db = self.get_freq()
-         ax_freq.plot(hz, db)
-         ax_freq.set_title('Frequency Distribution', fontweight='bold')
-         ax_freq.set_xlabel('Frequency [hz]')
-         ax_freq.set_ylabel('Magnitude [db]')
-         
+         eval.plotTable(out, 'Image Features', ax=ax_table)         
          plt.show()
          return fig
       except:
@@ -143,7 +134,7 @@ class Model:
       return 0
 
    def getPath(self):
-      return self.contour_.get_path()
+      return self.image_.getPath()
 
 if __name__ == '__main__':
    main()

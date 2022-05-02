@@ -147,7 +147,6 @@ feature_set = {
    'shape_extent' : getShapeExtent,
    # 'shape_aspectRatio' : getShapeAspectRatio,
    # 'shape_perimeter' : getShapePerimiter,
-   'shape_area' : getShapeArea,
    # 'shape_centroidX' : getShapeMomentX,
    'shape_centroidY' : getShapeMomentY,
 }

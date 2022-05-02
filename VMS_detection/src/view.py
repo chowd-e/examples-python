@@ -1,8 +1,11 @@
+from array import array
 import os
+import numpy as np
 from PyQt5.QtWidgets import QLabel, QPushButton, QComboBox, QHBoxLayout
 from PyQt5.QtWidgets import QVBoxLayout, QMainWindow, QWidget, QMessageBox
 from PyQt5.QtWidgets import QFileDialog as qfd
 from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QPixmap, QPainter, QPen
 
 class Viewer(QMainWindow):
    # display search bar for loading file name
@@ -22,11 +25,11 @@ class Viewer(QMainWindow):
       return self.controller_.recv(cmd,args)
 
    def build(self):
-      self.title = 'Variable Message Sign Detection'
+      self.title_ = 'Variable Message Sign Detection'
       self.left = 100
       self.top = 100
-      self._width = 420
-      self._height = 180
+      self.width_ = 600
+      self.height_ = 500
 
       # Button References
       self.init_ui()
@@ -36,10 +39,10 @@ class Viewer(QMainWindow):
       resp = self.send('predict')
       # Get key from value in dict
       
-      if resp == None:
+      if not isinstance(resp, type(np.zeros(1))):
          self.dialog("Error with prediction, ensure file is loaded")
          return 0
-      elif resp == 0:
+      elif np.all(resp==0):
          # TODO (Hwoard, Chase) Update Color of contours based on index
          val = "is Not Variable Message Sign"
       else:
@@ -52,15 +55,40 @@ class Viewer(QMainWindow):
    def drawContour(self):
       self.disp("Drawing Contours...")
       resp = self.send('draw')
+      # cast response here
 
       if resp == None:
          self.dialog("Please load an image first")
       else:
          # TODO (Howard, Chase) Display image, draw contours
-         # if image isn't displayed, display image
          self.disp("Received Contours")
-         
-      return resp
+         # contours = resp
+         # # Get image
+         # im_label = self.buttons_['IMAGE']['display']
+
+         # if im_label.pixmap == None:
+         #    self.loadImage()
+
+         # preds = self.predict()
+
+         # # Open Painter object
+         # painter = QPainter(im_label.pixmap)
+         # pen_red = QPen(Qt.red)
+         # pen_red.setWidth(3)
+         # pen_green = QPen(Qt.green)
+         # pen_green.setWidth(3)
+
+         # i = 0
+         # for prediction in preds:
+            
+         #    pen = pen_red
+         #    if prediction:
+         #       pen = pen_green
+            
+         #    painter.setPen(pen)
+         #    painter.drawConvexPolygon(contours[i])
+         #    i += 1
+   
 
    # TODO (Howard, Chase) Display an image on the GUI
    def loadImage(self):
@@ -68,7 +96,7 @@ class Viewer(QMainWindow):
                                         directory="images")[0]
       
       if path == '':
-         self.disp("Operation canceled, no audio file selected")
+         self.disp("Operation canceled, no Image selected")
          return 0
       
       self.disp('Loading File...')
@@ -80,7 +108,7 @@ class Viewer(QMainWindow):
          self.update_fname()
          self.displayImage()
       else:
-         self.disp("Error loading Audio")
+         self.disp("Error loading Image")
       return 0 
 
    # TODO (Howard, Chase) ensure an image is loaded on GUI when file is loaded
@@ -92,7 +120,7 @@ class Viewer(QMainWindow):
       if resp is not None:
          self.disp('Features retrieved')
       else:
-         self.dialog('Please load an audio file first')
+         self.dialog('Please load an Image first')
       # resp will be dataframe fo features, how to display
       return resp
 
@@ -119,9 +147,9 @@ class Viewer(QMainWindow):
    ##### INITIALIZATION #####
    def init_ui(self):
       # Set Display
-      self.setFixedSize(self._width, self._height)
-      self.setWindowTitle(self.title)
-      self.main_.setFixedSize(self._width - 15, self._height - 15)
+      self.setFixedSize(self.width_, self.height_)
+      self.setWindowTitle(self.title_)
+      self.main_.setFixedSize(self.width_ - 15, self.height_ - 15)
       # Create Buttons
       self.init_buttons()
       # SEt Layout
@@ -135,6 +163,8 @@ class Viewer(QMainWindow):
       l1 = QLabel('Select Model:')
       l2 = QLabel('Select Image File:')
       l3 = QLabel('Make a prediction:')
+      l4 = QLabel()
+      l4.setMaximumSize(int(self.width_ * 0.95), int(self.height_ * 0.7))
       fname = QLabel('Current File: \"None\"')
       fname.setAlignment(Qt.AlignTop)
       pad = QLabel('')
@@ -143,7 +173,7 @@ class Viewer(QMainWindow):
       ##### BUTTONS #####
       b1 = QPushButton('Load', self.main_)
       b1.clicked.connect(self.loadImage)
-      b1.setToolTip('Load new Audio File')
+      b1.setToolTip('Load new Image')
 
       b2 = QPushButton('Draw Contours', self.main_)
       b2.clicked.connect(self.drawContour)
@@ -168,7 +198,7 @@ class Viewer(QMainWindow):
       cb1.currentIndexChanged.connect(self.set_model)
       cb1.setCurrentIndex(0)
       
-      self.buttons = {
+      self.buttons_ = {
          'HEAD' : {
             'model_label' : l1,
             'model_list' : cb1,
@@ -181,7 +211,9 @@ class Viewer(QMainWindow):
             'image_draw' : b2,
             'image_details' : b4,
          },
-
+         'IMAGE' : {
+            'display' : l4,
+         },
          'TAIL' : {
             'ML_label'   : l3,
             'ML_predict' : b3,
@@ -202,20 +234,21 @@ class Viewer(QMainWindow):
       layout_tail = QHBoxLayout()
 
       # max_widgets = 4
-      # for i in range(len(self.buttons['HEAD']), max_widgets):
-      #    layout_header.addWidget(self.buttons['UTIL']['pad_blank'])
+      # for i in range(len(self.buttons_['HEAD']), max_widgets):
+      #    layout_header.addWidget(self.buttons_['UTIL']['pad_blank'])
          
-      for button in self.buttons['HEAD'].values():
+      for button in self.buttons_['HEAD'].values():
          layout_header.addWidget(button)
       layout.addLayout(layout_header)
 
-      for button in self.buttons['DISP'].values():
+      for button in self.buttons_['DISP'].values():
          layout_disp.addWidget(button)
       layout.addLayout(layout_disp)
 
-      layout.addWidget(self.buttons['UTIL']['filename'])
+      layout.addWidget(self.buttons_['IMAGE']['display'])
+      layout.addWidget(self.buttons_['UTIL']['filename'])
 
-      for button in self.buttons['TAIL'].values():
+      for button in self.buttons_['TAIL'].values():
          layout_tail.addWidget(button)
       layout.addLayout(layout_tail)
 
@@ -225,9 +258,9 @@ class Viewer(QMainWindow):
    def update_fname(self):
       path = self.model_.getPath()
       fname = os.path.basename(path)
-      display = self.buttons['UTIL']['filename']
+      display = self.buttons_['UTIL']['filename']
       display.setText("Current File: \"" + fname + "\"")
-      pass
+      return 0 
    
    def dialog(self, msg):
       if not isinstance(msg, str):
@@ -243,6 +276,15 @@ class Viewer(QMainWindow):
       mbox.exec_()
       return 0
 
+   def displayImage(self):
+      im_path = self.model_.getPath()
+      if(im_path == None):
+         print("Please load an Image first")
+         return 0
+
+      im_label = self.buttons_['IMAGE']['display']
+      im_label.setPixmap(QPixmap(im_path))
+      
    def disp(self, msg):
       self.statusBar().showMessage(msg)
       return 0

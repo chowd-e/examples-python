@@ -337,7 +337,7 @@ def plotTable(df, title = 'Table Display', ax=None):
    return ax
 
 if __name__ == '__main__':
-   path_in = "C:/git/python-examples/VMS_detection/data/VMS_dataset.xlsb"
+   path_in = "C:/git/python-examples/VMS_detection/data/VMS_dataset.csv"
    data, _ = loadFeatures(path_in)
    model = trainModel(data, selection='RandomForest')
    conf = showConfusionMatrix(data, model)

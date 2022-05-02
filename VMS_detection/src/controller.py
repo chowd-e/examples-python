@@ -35,7 +35,7 @@ class Controller:
    def display_image(self,_):
       return self.viewer_.displayImage()
 
-   def drawContours(self):
+   def drawContours(self,_):
       return self.model_.getContours()
 
    def getDetails(self,_):
