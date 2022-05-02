@@ -7,10 +7,16 @@
 import cv2 as cv
 import numpy as np
 
+def blur(image, kernel_size = 7):
+   # Slight blur to remove noise and get cleaner edges
+
+    im = cv.GaussianBlur(image, (kernel_size, kernel_size), 0)
+    return im
+
 # get contour information based on adaptive thresholding wiht a mean shift
-def getContourThresh(image) :
+def greyGetContour(image) :
     # Slight blur to remove noise and get cleaner edges
-    im = cv.GaussianBlur(image, (7, 7), 0)
+    im = blur(image)
 
     # gry - edge detection
     gry = cv.cvtColor(im, cv.COLOR_BGR2GRAY)
@@ -46,10 +52,10 @@ def getContourThresh(image) :
     return __getContours(mask)
 
 # Get contour selection based on color thresholding - identify orange/yellow
-def getContourColor(image) :
+def colorGetContour(image) :
     # HSV Color Space
     hsv = cv.cvtColor(image, cv.COLOR_BGR2HSV)
-    hsv = cv.GaussianBlur(hsv, (7, 7), 0)
+    hsv = blur(hsv)
 
     # Orange Color Detection
     org = cv.inRange(hsv, (10, 50, 20), (30, 255, 255))
@@ -74,15 +80,10 @@ def __getContours(img):
         return cnt[-3:]
 
 # public method for retrieving contours, either all, only color, or only thresh
-def getContours(IM, method = None):
-   if method == 'color':
-      contours = getContourColor(IM)
-   elif method == 'threshold':
-      contours = getContourThresh(IM)
-   else:
-      contours = [getContourColor(IM) 
-                  + getContourThresh(IM)]
-   return contours
+def getContours(IM):
+   cnt_list = colorGetContour(IM) + greyGetContour(IM)
+   cnt_list = sorted(cnt_list, key=cv.contourArea)
+   return cnt_list[-3:]
 
 # when a contour is dislayed to the user, manually input if contour contains
 # VMS or not for storage
