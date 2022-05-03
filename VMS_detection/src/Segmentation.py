@@ -20,7 +20,6 @@ def greyGetContour(image) :
 
     # gry - edge detection
     gry = cv.cvtColor(im, cv.COLOR_BGR2GRAY)
-
     gry[gry > 80] = 255
 
     # drop pixels down to 0 min
@@ -43,9 +42,7 @@ def greyGetContour(image) :
 
     # getStructuringElement - Close image, then open
     close = cv.morphologyEx(thresh, cv.MORPH_CLOSE, krn)
-
     open_ = cv.morphologyEx(close, cv.MORPH_OPEN, krn)
-
     mask = cv.bitwise_and(open_, close)
     # mask = close
 

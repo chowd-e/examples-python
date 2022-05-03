@@ -1,7 +1,9 @@
 import os
+from tokenize import Ignore
 import numpy as np
-from PyQt5.QtWidgets import QLabel, QPushButton, QComboBox, QHBoxLayout
+from PyQt5.QtWidgets import QLabel, QPushButton, QComboBox, QHBoxLayout 
 from PyQt5.QtWidgets import QVBoxLayout, QMainWindow, QWidget, QMessageBox
+from PyQt5.QtWidgets import QSizePolicy
 from PyQt5.QtWidgets import QFileDialog as qfd
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPixmap, QPainter, QPen
@@ -18,21 +20,18 @@ class Viewer(QMainWindow):
       self.model_ = model_parent
       self.controller_ = controller
       self.painter_ = QPainter()
-
       self.build()
       
    def send(self, cmd, args=[]):
-      return self.controller_.recv(cmd,args)
+      return self.controller_.recv(cmd, args)
 
    def build(self):
       self.title_ = 'Variable Message Sign Detection'
-      self.left = 100
-      self.top = 100
       self.width_ = 600
       self.height_ = 500
 
       # Button References
-      self.init_ui()
+      self.buildUI()
 
    ##### BUTTON RESPONSES #####
    def predict(self):
@@ -43,7 +42,7 @@ class Viewer(QMainWindow):
          self.dialog("Error with prediction, ensure file is loaded")
          return 0
       elif np.all(resp==0):
-         # TODO (Hwoard, Chase) Update Color of contours based on index
+         # TODO (Howard, Chase) Update Color of contours based on index
          val = "is Not Variable Message Sign"
       else:
          # TODO (Howard, Chase) Update Color of contours based on index in resp
@@ -89,12 +88,11 @@ class Viewer(QMainWindow):
          #    painter.setPen(pen)
          #    painter.drawConvexPolygon(contours[i])
          #    i += 1
-   
 
    # TODO (Howard, Chase) Display an image on the GUI
    def loadImage(self):
       path = qfd.getOpenFileName(caption="Select image file",
-                                        directory="images")[0]
+                                 directory="images")[0]
       
       if path == '':
          self.disp("Operation canceled, no Image selected")
@@ -106,17 +104,13 @@ class Viewer(QMainWindow):
 
       if resp == 0:
          self.disp("New file loaded: " + str(f))
-         self.update_fname()
+         self.updateFilename()
          self.displayImage()
       else:
          self.disp("Error loading Image")
       return 0 
 
-   # TODO (Howard, Chase) ensure an image is loaded on GUI when file is loaded
-   def displayImage(self):
-      pass
-
-   def show_details(self):
+   def showDetails(self):
       resp = self.send('details')
       if resp is not None:
          self.disp('Features retrieved')
@@ -125,7 +119,7 @@ class Viewer(QMainWindow):
       # resp will be dataframe fo features, how to display
       return resp
 
-   def evaluate_model(self):
+   def evaluateModel(self):
       self.disp("Select Source Data")
       source_data = qfd.getOpenFileName(caption="Select Source Data",
                                         directory="data")[0]
@@ -136,7 +130,7 @@ class Viewer(QMainWindow):
 
       return self.send('evaluate', source_data)
 
-   def set_model(self):
+   def setModel(self):
       caller = self.sender()
       # Need to get new model with this text
       resp = self.send('load_model', caller.currentText())
@@ -146,19 +140,19 @@ class Viewer(QMainWindow):
          self.dialog("Error loading Model")
 
    ##### INITIALIZATION #####
-   def init_ui(self):
+   def buildUI(self):
       # Set Display
       self.setFixedSize(self.width_, self.height_)
       self.setWindowTitle(self.title_)
       self.main_.setFixedSize(self.width_ - 15, self.height_ - 15)
       # Create Buttons
-      self.init_buttons()
+      self.initializeButtons()
       # SEt Layout
-      self.set_layout()
+      self.setLayout()
       self.main_.show()
       self.show()
 
-   def init_buttons(self):
+   def initializeButtons(self):
       
       ##### LABELS #####
       l1 = QLabel('Select Model:')
@@ -166,6 +160,7 @@ class Viewer(QMainWindow):
       l3 = QLabel('Make a prediction:')
       l4 = QLabel()
       l4.setMaximumSize(int(self.width_ * 0.95), int(self.height_ * 0.7))
+
       fname = QLabel('Current File: \"None\"')
       fname.setAlignment(Qt.AlignTop)
       pad = QLabel('')
@@ -185,18 +180,18 @@ class Viewer(QMainWindow):
       b3.setToolTip('Classify Current Image')
 
       b4 = QPushButton('Inspect Features', self.main_)
-      b4.clicked.connect(self.show_details)
+      b4.clicked.connect(self.showDetails)
       b4.setToolTip('Get Details on Current Image')
 
       b5 = QPushButton('Model Evaluation', self.main_)
-      b5.clicked.connect(self.evaluate_model)
+      b5.clicked.connect(self.evaluateModel)
       b5.setToolTip('Display metrics from Model Evaluation')
 
       # Populate Combo Box with Model Names
       cb1 = QComboBox(self.main_)
       for model in self.model_.getModels():
          cb1.addItem(model)
-      cb1.currentIndexChanged.connect(self.set_model)
+      cb1.currentIndexChanged.connect(self.setModel)
       cb1.setCurrentIndex(0)
       
       self.buttons_ = {
@@ -227,17 +222,13 @@ class Viewer(QMainWindow):
       }
       return 0
 
-   def set_layout(self):
+   def setLayout(self):
       layout = QVBoxLayout(self.main_)
       # Sub Layouts here
       layout_header = QHBoxLayout()
       layout_disp = QHBoxLayout()
       layout_tail = QHBoxLayout()
 
-      # max_widgets = 4
-      # for i in range(len(self.buttons_['HEAD']), max_widgets):
-      #    layout_header.addWidget(self.buttons_['UTIL']['pad_blank'])
-         
       for button in self.buttons_['HEAD'].values():
          layout_header.addWidget(button)
       layout.addLayout(layout_header)
@@ -256,7 +247,7 @@ class Viewer(QMainWindow):
       self.main_.setLayout(layout)
       return 0
 
-   def update_fname(self):
+   def updateFilename(self):
       path = self.model_.getPath()
       fname = os.path.basename(path)
       display = self.buttons_['UTIL']['filename']
@@ -268,11 +259,9 @@ class Viewer(QMainWindow):
          return -1
 
       mbox = QMessageBox()
-      # mbox.setIcon(QMessageBox.information)
       mbox.setWindowTitle('Information:')
       mbox.setText(msg)
 
-      # mbox.setDetailedText(msg)
       mbox.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
       mbox.exec_()
       return 0

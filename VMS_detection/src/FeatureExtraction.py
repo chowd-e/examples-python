@@ -10,31 +10,33 @@ import matplotlib.pyplot as plt
 from VmsImage import SegmentationTypeEnum, VmsImage
 
 """
-This script is used to extract features from a VmsImage
+Command Structure
 """
-def get_all_featureNames():
+def getAllFeatureNames():
    return [*feature_set]
 
-def process_feature_command(cmd, args = []):
-   if cmd in feature_set and isinstance(args[0], VmsImage):
+def processCommand(cmd, args = []):
+   if cmd in feature_set:
       return feature_set[cmd](args)
    else:
-      print("Feature not found: \"%s\"\n\nFEATURE LIST:" % cmd)
+      print("Feature not found: \"%s\"\n\nFeature List:" % cmd)
       print(*feature_set, sep ="\n")
       return -1
 
-def getFeatureSet(image, contour, featureNames = []):
+"""
+Private
+"""
+def _getContourFeatures(image, contour, featureNames = []):
    features = dict()
    # ALL FEATURES
    if featureNames == []:
       for feat in feature_set.keys():
-         features[feat] = process_feature_command(feat, [image, contour])
+         features[feat] = processCommand(feat, [image, contour])
    # Select Features
    else:
       for feat in featureNames:
-         features[feat] = process_feature_command(feat, [image, contour])
+         features[feat] = processCommand(feat, [image, contour])
          
-   # features["Method"] = image.getSegmentationMethod()
    return features   
 
 def _getGreyscaleHistogram(image, contour):
@@ -45,28 +47,7 @@ def _getGreyscaleHistogram(image, contour):
 
    vals, bins, _ = plt.hist(gry.ravel(), bins=255, range=(0, 255), fc='k', ec='k')
    return vals, bins
-
-def getGreyMean(image, contour):
-   vals, _ = _getGreyscaleHistogram(image, contour)
-   return np.mean(vals)
-
-def getGreyPeak(image, contour):
-   vals, _ = _getGreyscaleHistogram(image, contour)
-   return np.argmax(vals)
-
-def getGreyAreaPercent(image, contour):
-   vals, bins = _getGreyscaleHistogram(image, contour)
-   mask_gry = bins <= 80
-   vals_gry = vals[mask_gry[:-1]]
-   area = sum(np.diff(bins)*vals)
-
-   # Percent area above 200 (lighter pixels)
-   return sum(vals_gry) / area
-
-def getGreyArea(image, contour):
-   vals, bins = _getGreyscaleHistogram(image, contour)
-   return sum(np.diff(bins)*vals)
-
+   
 def _getHsvHistogram(image, contour):
    image = image.getImageSubset(contour)
    hsv = cv.cvtColor(image, cv.COLOR_BGR2HSV)
@@ -76,76 +57,161 @@ def _getHsvHistogram(image, contour):
    hist = cv.calcHist([hsv], [0], None, [bins], [0, bins])
    return hist 
 
-def getHsvAreaPercent(image, contour):
+"""
+Public
+"""
+def getGreyMean(args):
+   if not isinstance(args[0], VmsImage) or \
+      not isinstance(args[1], type(np.zeros(1))): 
+      return -1      
+   
+   image = args[0]
+   contour = args[1]
+   vals, _ = _getGreyscaleHistogram(image, contour)
+   return np.mean(vals)
+
+def getGreyPeak(args):
+   if not isinstance(args[0], VmsImage) or \
+      not isinstance(args[1], type(np.zeros(1))): 
+      return -1
+
+   image = args[0]
+   contour = args[1]
+   vals, _ = _getGreyscaleHistogram(image, contour)
+   return np.argmax(vals)
+
+def getGreyAreaPercent(args):
+   if not isinstance(args[0], VmsImage) or \
+      not isinstance(args[1], type(np.zeros(1))): 
+      return -1
+
+   image = args[0]
+   contour = args[1]
+   vals, bins = _getGreyscaleHistogram(image, contour)
+   mask_gry = bins <= 80
+   vals_gry = vals[mask_gry[:-1]]
+   area = sum(np.diff(bins)*vals)
+
+   # Percent area above 200 (lighter pixels)
+   return sum(vals_gry) / area
+
+def getGreyArea(args):
+   if not isinstance(args[0], VmsImage) or \
+      not isinstance(args[1], type(np.zeros(1))): 
+      return -1
+
+   image = args[0]
+   contour = args[1]
+   vals, bins = _getGreyscaleHistogram(image, contour)
+   return sum(np.diff(bins)*vals)
+
+
+
+def getHsvAreaPercent(args):
+   if not isinstance(args[0], VmsImage) or \
+      not isinstance(args[1], type(np.zeros(1))): 
+      return -1
+
+   image = args[0]
+   contour = args[1]
    hist = _getHsvHistogram(image, contour)
    area = np.sum(hist)
    return np.sum(hist[10:50]) / area
 
-def getHsvMean(image, contour):
+def getHsvMean(args):
+   if not isinstance(args[0], VmsImage) or \
+      not isinstance(args[1], type(np.zeros(1))): 
+      return -1
+
+   image = args[0]
+   contour = args[1]
    hist = _getHsvHistogram(image, contour)
    return np.mean(hist)
 
+def getHsvArea(args):
+   if not isinstance(args[0], VmsImage) or \
+      not isinstance(args[1], type(np.zeros(1))): 
+      return -1
 
-def getHsvArea(image, contour):
+   image = args[0]
+   contour = args[1]
    hist = _getHsvHistogram(image, contour)
    return np.sum(hist)
 
-def getHsvPeak(image, contour):
+def getHsvPeak(args):
+   if not isinstance(args[0], VmsImage) or \
+      not isinstance(args[1], type(np.zeros(1))): 
+      return -1
+
+   image = args[0]
+   contour = args[1]
    hist = _getHsvHistogram(image, contour)
    return np.max(hist)
 
-def getShapeMomentX(_,contour):
+def getShapeMomentX(args):
+   if not isinstance(args[1], type(np.zeros(1))): 
+      return -1
+
+   contour = args[1]
    M = cv.moments(contour)
    return int(M['m10'] / M['m00'])
 
-def getShapeMomentY(_,contour):
+def getShapeMomentY(args):
+   if not isinstance(args[1], type(np.zeros(1))): 
+      return -1
+
+   contour = args[1]
    M = cv.moments(contour)
    return int(M['m01'] / M['m00'])
 
-def getShapeArea(_,contour):
+def getShapeArea(args):
+   if not isinstance(args[1], type(np.zeros(1))): 
+      return -1
+
+   contour = args[1]
    return cv.contourArea(contour)
 
-def getShapePerimiter(_,contour):
+def getShapePerimiter(args):
+   if not isinstance(args[1], type(np.zeros(1))): 
+      return -1
+
+   contour = args[1]
    return cv.arcLength(contour, True)
 
-def getShapeAspectRatio(_,contour):
+def getShapeAspectRatio(args):
+   if not isinstance(args[1], type(np.zeros(1))): 
+      return -1
+
+   contour = args[1]
    _, _, w, h = cv.boundingRect(contour)
    return float(w) / h
 
-def getShapeExtent(_,contour):
+def getShapeExtent(args):
+   if not isinstance(args[1], type(np.zeros(1))): 
+      return -1
+
+   contour = args[1]
    _, _, w, h = cv.boundingRect(contour)
    # proportion of area filled by bounding rectangle
    area_rect = w * h
-   return float(getShapeArea(None, contour)) / area_rect
+   return float(getShapeArea(args)) / area_rect
 
-def getShapeSolidity(_,contour):
+def getShapeSolidity(args):
+   if not isinstance(args[1], type(np.zeros(1))): 
+      return -1
+
+   contour = args[1]
    hull = cv.convexHull(contour)
-   return float(getShapeArea(None, contour)) / cv.contourArea(hull)
+   return float(getShapeArea(args)) / cv.contourArea(hull)
 
-def getShapeAngle(_,contour):
+def getShapeAngle(args):
+   if not isinstance(args[1], type(np.zeros(1))): 
+      return -1
+
+   contour = args[1]
    #fit elipse, major minor axis, orientation angle
    (_, _), (_, _), angle = cv.fitEllipse(contour)
    return angle
-
-# Feature name with Callback function
-feature_set = { 
-   # 'gry_peak' : getGreyPeak,
-   # 'gry_area' : getGreyArea,
-   'gry_area_percent' : getGreyAreaPercent,
-   'gry_mean' : getGreyMean,
-   'hsv_area_percent' : getHsvAreaPercent,
-   'hsv_mean' : getHsvMean,
-   # 'hsv_peak' : getHsvPeak,
-   # 'hsv_area' : getHsvArea,
-   'shape_area' : getShapeArea,
-   # 'shape_angle' : getShapeAngle,
-   # 'shape_solidity' : getShapeSolidity,
-   'shape_extent' : getShapeExtent,
-   # 'shape_aspectRatio' : getShapeAspectRatio,
-   # 'shape_perimeter' : getShapePerimiter,
-   # 'shape_centroidX' : getShapeMomentX,
-   'shape_centroidY' : getShapeMomentY,
-}
 
 ## Returns dataframe of features relating to image
 def getVmsFeatures(image):
@@ -154,7 +220,7 @@ def getVmsFeatures(image):
       contours = image.getContours()
 
       for contour in contours:
-         feat_row = getFeatureSet(image, contour)
+         feat_row = _getContourFeatures(image, contour)
          features = features.append(feat_row, ignore_index=True, sort=False)
    return features.dropna(how='any')
 
@@ -182,6 +248,26 @@ def getVmsDirFeatures(dir_in, segmentation_method = SegmentationTypeEnum.GREY):
                                  ignore_index=True,
                                  sort=False)
    return features
+
+# Feature name with Callback function
+feature_set = { 
+   # 'gry_peak' : getGreyPeak,
+   # 'gry_area' : getGreyArea,
+   'gry_area_percent' : getGreyAreaPercent,
+   'gry_mean' : getGreyMean,
+   'hsv_area_percent' : getHsvAreaPercent,
+   'hsv_mean' : getHsvMean,
+   # 'hsv_peak' : getHsvPeak,
+   # 'hsv_area' : getHsvArea,
+   'shape_area' : getShapeArea,
+   # 'shape_angle' : getShapeAngle,
+   # 'shape_solidity' : getShapeSolidity,
+   'shape_extent' : getShapeExtent,
+   # 'shape_aspectRatio' : getShapeAspectRatio,
+   # 'shape_perimeter' : getShapePerimiter,
+   # 'shape_centroidX' : getShapeMomentX,
+   'shape_centroidY' : getShapeMomentY,
+}
 
 if __name__ == '__main__':
    # Add Pickel Calls here pd.DataFrameToPickle

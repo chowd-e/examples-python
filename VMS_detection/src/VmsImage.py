@@ -15,14 +15,13 @@ class VmsImage:
       # Single paramter passed - load from file     
       self.loadFromFile(image_path)
 
-
    # Load image from existing file
    def loadFromFile(self, path):
       # Default to greyscale
       self.method_ = SegmentationTypeEnum.GREY
       # Path to image
       self.path_ = None
-      # PIL Image store
+      # CV Image store
       self.image_ = None
       # List of contours from segmented image
       self.contours_ = None
