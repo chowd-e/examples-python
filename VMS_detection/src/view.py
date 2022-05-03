@@ -1,4 +1,3 @@
-from array import array
 import os
 import numpy as np
 from PyQt5.QtWidgets import QLabel, QPushButton, QComboBox, QHBoxLayout
@@ -18,6 +17,7 @@ class Viewer(QMainWindow):
       
       self.model_ = model_parent
       self.controller_ = controller
+      self.painter_ = QPainter()
 
       self.build()
       
@@ -72,7 +72,8 @@ class Viewer(QMainWindow):
          # preds = self.predict()
 
          # # Open Painter object
-         # painter = QPainter(im_label.pixmap)
+         # self.painter_ = QPainter(im_label.pixmap)
+
          # pen_red = QPen(Qt.red)
          # pen_red.setWidth(3)
          # pen_green = QPen(Qt.green)

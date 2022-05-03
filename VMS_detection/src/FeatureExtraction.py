@@ -1,9 +1,6 @@
 # This class is designed to extract a set of features from a given image, 
 # features include greyscale, color, and shape features based on contours or 
 # subsets of images
-from cProfile import label
-from ctypes.wintypes import HINSTANCE
-from inspect import ArgSpec
 import os
 import pandas as pd
 import numpy as np
@@ -11,7 +8,6 @@ import cv2 as cv
 import matplotlib.pyplot as plt
 
 from VmsImage import SegmentationTypeEnum, VmsImage
-import Segmentation as segment
 
 """
 This script is used to extract features from a VmsImage
@@ -21,7 +17,7 @@ def get_all_featureNames():
 
 def process_feature_command(cmd, args = []):
    if cmd in feature_set and isinstance(args[0], VmsImage):
-      return feature_set[cmd](args[0], args[1])
+      return feature_set[cmd](args)
    else:
       print("Feature not found: \"%s\"\n\nFEATURE LIST:" % cmd)
       print(*feature_set, sep ="\n")
