@@ -45,7 +45,10 @@ def _getGreyscaleHistogram(image, contour):
    gry = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
    gry = cv.GaussianBlur(gry, (19, 19), 0)
 
-   vals, bins, _ = plt.hist(gry.ravel(), bins=255, range=(0, 255), fc='k', ec='k')
+   vals, bins, _ = plt.hist(gry.ravel(), bins=255, range=(0, 255),
+                            histtype='step', fc='k', ec='k')
+   plt.title("Greyscale Histogram")
+   plt.show()
    return vals, bins
    
 def _getHsvHistogram(image, contour):
@@ -55,6 +58,9 @@ def _getHsvHistogram(image, contour):
 
    bins = 180
    hist = cv.calcHist([hsv], [0], None, [bins], [0, bins])
+   plt.plot(hist, color='b')
+   plt.title("HSV Color Histogram")
+   plt.show()
    return hist 
 
 """
@@ -105,8 +111,6 @@ def getGreyArea(args):
    vals, bins = _getGreyscaleHistogram(image, contour)
    return sum(np.diff(bins)*vals)
 
-
-
 def getHsvAreaPercent(args):
    if not isinstance(args[0], VmsImage) or \
       not isinstance(args[1], type(np.zeros(1))): 
@@ -115,8 +119,7 @@ def getHsvAreaPercent(args):
    image = args[0]
    contour = args[1]
    hist = _getHsvHistogram(image, contour)
-   area = np.sum(hist)
-   return np.sum(hist[10:50]) / area
+   return np.sum(hist[10:50]) / np.sum(hist)
 
 def getHsvMean(args):
    if not isinstance(args[0], VmsImage) or \
@@ -154,6 +157,7 @@ def getShapeMomentX(args):
 
    contour = args[1]
    M = cv.moments(contour)
+   if M['m00'] == 0: return 0
    return int(M['m10'] / M['m00'])
 
 def getShapeMomentY(args):
@@ -162,6 +166,8 @@ def getShapeMomentY(args):
 
    contour = args[1]
    M = cv.moments(contour)
+   
+   if M['m00'] == 0: return 0
    return int(M['m01'] / M['m00'])
 
 def getShapeArea(args):
